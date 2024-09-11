@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 from django.utils.html import format_html
+from modeltranslation.admin import TabbedTranslationAdmin
+from unfold.admin import TabularInline
 
 from apps.pages.models import (
     Banner,
@@ -20,7 +23,7 @@ from apps.pages.models import (
 
 
 @admin.register(Banner)
-class BannerAdmin(admin.ModelAdmin):
+class BannerAdmin(ModelAdmin, TabbedTranslationAdmin):
     list_display = ["title", "type", 'object_link', "is_active", "created_at"]
     list_filter = ["title", "is_active", "created_at"]
     search_fields = ["title", "link", "created_at"]
@@ -56,70 +59,70 @@ class BannerAdmin(admin.ModelAdmin):
 
 
 @admin.register(StaticPage)
-class StaticPageAdmin(admin.ModelAdmin):
+class StaticPageAdmin(ModelAdmin, TabbedTranslationAdmin):
     exclude = [
         'title',
         'description',
     ]
 
 
-class PhoneInline(admin.TabularInline):
+class PhoneInline(TabularInline):
     model = Phone
     extra = 0
 
 
-class EmailInline(admin.TabularInline):
+class EmailInline(TabularInline):
     model = Email
     extra = 0
 
 
-class SocialLinkInline(admin.TabularInline):
+class SocialLinkInline(TabularInline):
     model = SocialLink
     extra = 0
 
 
-class PaymentMethodLinkInline(admin.TabularInline):
+class PaymentMethodLinkInline(TabularInline):
     model = PaymentMethod
     extra = 0
 
 
-class AddressInline(admin.TabularInline):
+class AddressInline(TabularInline):
     model = Address
     extra = 0
 
 
 @admin.register(Contacts)
-class ContactsAdmin(admin.ModelAdmin):
+class ContactsAdmin(ModelAdmin, TabbedTranslationAdmin):
     pass
     inlines = [PhoneInline, EmailInline, SocialLinkInline, PaymentMethodLinkInline, AddressInline]
 
 
-class OrderTypesInline(admin.TabularInline):
+class OrderTypesInline(TabularInline):
     model = OrderTypes
     extra = 0
 
 
-class DeliveryConditionsInline(admin.TabularInline):
+class DeliveryConditionsInline(TabularInline):
     model = DeliveryConditions
     extra = 0
 
 
-class MethodsOfPaymentInline(admin.TabularInline):
+class MethodsOfPaymentInline(TabularInline):
     model = MethodsOfPayment
     extra = 0
 
 
 @admin.register(MainPage)
-class MainPageAdmin(admin.ModelAdmin):
+class MainPageAdmin(ModelAdmin, TabbedTranslationAdmin):
     list_display = ('phone', 'icon', 'meta_title', 'meta_description', 'meta_image')
     inlines = [OrderTypesInline, DeliveryConditionsInline, MethodsOfPaymentInline]
 
 
-class StoryInline(admin.TabularInline):
+class StoryInline(TabularInline):
     extra = 0
     model = Story
 
 
 @admin.register(Stories)
-class StoriesAdmin(admin.ModelAdmin):
+class StoriesAdmin(ModelAdmin):
     inlines = [StoryInline]

@@ -18,24 +18,24 @@ from apps.services.generate_message import generate_order_message
 
 
 @admin.register(TelegramBotToken)
-class TelegramBotTokenAdmin(admin.ModelAdmin):
+class TelegramBotTokenAdmin(ModelAdmin):
     pass
 
 
 @admin.register(WhatsAppChat)
-class WhatsAppChatAdmin(admin.ModelAdmin):
+class WhatsAppChatAdmin(ModelAdmin):
     pass
 
 
 @admin.register(Restaurant)
-class RestaurantAdmin(admin.ModelAdmin):
+class RestaurantAdmin(ModelAdmin):
     list_display = ('name', 'address', 'phone_number', 'email', 'opening_hours')
     search_fields = ('name', 'address')
     list_filter = ('opening_hours',)
 
 
 @admin.register(Delivery)
-class DeliveryAdmin(admin.ModelAdmin):
+class DeliveryAdmin(ModelAdmin):
     list_display = ('restaurant', 'user_address', 'delivery_time', 'delivery_fee')
     search_fields = ('restaurant__name', 'user_address__city')
     list_filter = ('delivery_time', 'restaurant')
@@ -47,7 +47,7 @@ class OrderItemInline(admin.TabularInline):
 
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ModelAdmin):
     list_display = (
         'id', 'restaurant', 'delivery', 'order_time', 'total_amount', 'link_to_user', 'order_status', 'is_pickup',
         'order_request_button')
@@ -88,15 +88,15 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(DistancePricing)
-class DistancePricingInline(admin.ModelAdmin):
+class DistancePricingInline(ModelAdmin):
     pass
 
 
 @admin.register(PercentCashback)
-class PercentCashbackAdmin(admin.ModelAdmin):
+class PercentCashbackAdmin(ModelAdmin):
     pass
 
 
 @admin.register(Report)
-class ReportAdmin(admin.ModelAdmin):
+class ReportAdmin(ModelAdmin):
     pass
