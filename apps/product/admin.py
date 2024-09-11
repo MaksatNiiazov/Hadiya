@@ -2,9 +2,11 @@ from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin
 from django.utils.html import format_html
 from modeltranslation.admin import TranslationAdmin
+from unfold.admin import ModelAdmin
 
 from .models import Size, Category, Product, ProductSize, Topping, Tag, Article  # Set, Ingredient
 from .forms import ProductSizeForm
+from mptt.admin import MPTTModelAdmin, DraggableMPTTAdmin
 
 
 class ExcludeBaseFieldsMixin:
@@ -38,11 +40,19 @@ class ProductSizeInline(admin.TabularInline):
 
 
 @admin.register(Category)
-class CategoryAdmin(SortableAdminMixin, ExcludeBaseFieldsMixin, TranslationAdmin):
-    list_display = ('name', 'description', 'order')
+class CategoryAdmin(ModelAdmin, DraggableMPTTAdmin, ExcludeBaseFieldsMixin, TranslationAdmin):
     search_fields = ('name',)
     exclude_base_fields = ('name', 'description')
+    def indented_title(self, obj):
+        return format_html(
+            '<div style="text-indent:{}px;">{}</div>',
+            obj.level * 20,  # Увеличивайте значение для большего отступа
+            obj.name
+        )
+    indented_title.short_description = 'Название'
 
+    list_display = ('tree_actions', 'indented_title',)
+    mptt_level_indent = 20
 
 @admin.register(Product)
 class ProductAdmin(SortableAdminMixin, ExcludeBaseFieldsMixin, TranslationAdmin):
