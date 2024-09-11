@@ -4,7 +4,8 @@ from .models import (
     Product,
     Topping,
     Size,
-    Tag
+    Tag,
+    Article,
 )  # Set,Ingredient
 
 
@@ -31,6 +32,10 @@ class SizeTranslationOptions(TranslationOptions):
 @register(Tag)
 class TagTranslationOptions(TranslationOptions):
     fields = ('name',)
+
+@register(Article)
+class ArticleTranslationOptions(TranslationOptions):
+    fields = ('title', 'text')
 
 # @register(Ingredient)
 # class IngredientTranslationOptions(TranslationOptions):

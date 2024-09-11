@@ -5,8 +5,8 @@ from rest_framework.response import Response
 
 from apps.product.api.filters import ProductFilter
 from apps.product.api.serializers import ProductSerializer, CategoryProductSerializer, \
-    CategoryOnlySerializer, ProductSizeWithBonusSerializer  # , SetSerializer
-from apps.product.models import Category, Product, ProductSize  # Set
+    CategoryOnlySerializer, ProductSizeWithBonusSerializer, ArticleSerializer  # , SetSerializer
+from apps.product.models import Category, Product, ProductSize, Article  # Set
 
 
 class ProductSearchView(generics.ListAPIView):
@@ -32,7 +32,7 @@ class ProductListByCategorySlugView(generics.ListAPIView):
         except Category.DoesNotExist:
             raise NotFound("Категория не найдена")
 
-        products = Product.objects.filter(category=category, product_sizes__isnull=False).distinct()
+        products = Product.objects.filter(category=category, product_sizes__isnull=False).distinct().order_by('order')
         # sets = Set.objects.filter(category=category)
 
         product_serializer = ProductSerializer(products, many=True, context={'request': request})
@@ -71,3 +71,20 @@ class CategoryOnlyListView(generics.ListAPIView):
         categories = Category.objects.all()
         serializer = CategoryOnlySerializer(categories, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+class PopularProducts(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        return Product.objects.filter(is_popular=True)
+
+
+class ArticleListView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+
+    def get(self, request, *args, **kwargs):
+        articles = Article.objects.filter(product=self.kwargs['product_id'])
+        serializer = ArticleSerializer(articles, many=True, context={'request': request})
+        return Response(serializer.data)
+
