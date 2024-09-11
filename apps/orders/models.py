@@ -7,6 +7,8 @@ from django.core.validators import MinLengthValidator
 from apps.authentication.models import UserAddress
 from apps.pages.models import SingletonModel
 from apps.product.models import ProductSize, Topping  # Set,Ingredient
+import random
+import string
 
 
 class WhatsAppChat(SingletonModel):
@@ -134,12 +136,21 @@ class Order(models.Model):
     )
     comment = models.TextField(verbose_name=_('Комментарий'), blank=True, null=True)
 
+    promo_code = models.ForeignKey('PromoCode', on_delete=models.SET_NULL, null=True, blank=True)
+
     class Meta:
         verbose_name = _("Заказ")
         verbose_name_plural = _("Заказы")
 
     def __str__(self):
         return f"Заказ #{self.id}"
+
+
+    def apply_promo_code(self):
+        if self.promo_code and self.promo_code.is_valid():
+            discount = (self.promo_code.discount / 100) * self.total_amount
+            return self.total_amount - discount
+        return self.total_amount
 
     def get_total_amount(self):
         total_amount = self.delivery.delivery_fee
@@ -163,6 +174,7 @@ class Order(models.Model):
         return total_bonus_amount
 
     def save(self, *args, **kwargs):
+        self.total_amount = self.apply_promo_code()
         super().save(*args, **kwargs)
 
 
@@ -245,3 +257,22 @@ class Report(models.Model):
     class Meta:
         verbose_name = _("Отчет")
         verbose_name_plural = _("Отчеты")
+
+
+class PromoCode(models.Model):
+    code = models.CharField(max_length=10, unique=True, verbose_name='Промокод')
+    valid_from = models.DateTimeField(verbose_name='Начало действия')
+    valid_to = models.DateTimeField(verbose_name='Конец действия')
+    discount = models.IntegerField(help_text='Процент скидки', verbose_name='Скидка')
+    active = models.BooleanField(default=False, verbose_name='Активен')
+
+    def __str__(self):
+        return self.code
+
+    @staticmethod
+    def generate_code(length=6):
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
+    def is_valid(self):
+        from django.utils import timezone
+        return self.active and self.valid_from <= timezone.now() <= self.valid_to
