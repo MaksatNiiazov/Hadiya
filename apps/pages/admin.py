@@ -1,8 +1,7 @@
 from django.contrib import admin
-from django.contrib.admin import ModelAdmin
 from django.utils.html import format_html
 from modeltranslation.admin import TabbedTranslationAdmin
-from unfold.admin import TabularInline
+from unfold.admin import TabularInline, ModelAdmin
 
 from apps.pages.models import (
     Banner,
@@ -23,7 +22,7 @@ from apps.pages.models import (
 
 
 @admin.register(Banner)
-class BannerAdmin(ModelAdmin, TabbedTranslationAdmin):
+class BannerAdmin(ModelAdmin):
     list_display = ["title", "type", 'object_link', "is_active", "created_at"]
     list_filter = ["title", "is_active", "created_at"]
     search_fields = ["title", "link", "created_at"]
@@ -92,7 +91,7 @@ class AddressInline(TabularInline):
 
 
 @admin.register(Contacts)
-class ContactsAdmin(ModelAdmin, TabbedTranslationAdmin):
+class ContactsAdmin(ModelAdmin):
     pass
     inlines = [PhoneInline, EmailInline, SocialLinkInline, PaymentMethodLinkInline, AddressInline]
 
@@ -113,7 +112,7 @@ class MethodsOfPaymentInline(TabularInline):
 
 
 @admin.register(MainPage)
-class MainPageAdmin(ModelAdmin, TabbedTranslationAdmin):
+class MainPageAdmin(ModelAdmin):
     list_display = ('phone', 'icon', 'meta_title', 'meta_description', 'meta_image')
     inlines = [OrderTypesInline, DeliveryConditionsInline, MethodsOfPaymentInline]
 
