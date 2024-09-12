@@ -9,7 +9,7 @@ from apps.authentication.models import UserAddress
 from apps.orders.models import (
     Restaurant,
     TelegramBotToken,
-    Order
+    Order, PromoCode
 )
 from apps.services.bonuces import (
     calculate_bonus_points,
@@ -57,6 +57,7 @@ class CreateOrderView(generics.CreateAPIView):
         restaurant_id = request.data.get('restaurant_id', None)
         order_source = request.data.get('order_source', 'unknown')
         comment = request.data.get('comment', '')
+        promo_code = request.data.get('promo_code', None)
         order_time = datetime.now()
         if user_address_id:
             user_address_instance = UserAddress.objects.get(id=user_address_id, user=user)
@@ -108,6 +109,8 @@ class CreateOrderView(generics.CreateAPIView):
         try:
             total_order_amount = calculate_and_apply_bonus(order)
             order.total_amount = total_order_amount + delivery_fee
+            order.promo_code = PromoCode.objects.filter(code=promo_code).first() if promo_code else None
+
             order.save()
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

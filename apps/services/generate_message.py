@@ -87,6 +87,8 @@ def generate_order_message(order, delivery_distance_km, delivery_fee):
         f"Общая сумма: {order.total_amount}\n"
 
     )
+    if order.promo_code:
+        message += f"Промокод: {order.promo_code.code} - {order.promo_code.discount}%\n"
     if order.comment:
         message += f"Комментарий: {order.comment}\n"
 

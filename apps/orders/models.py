@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -145,11 +147,12 @@ class Order(models.Model):
     def __str__(self):
         return f"Заказ #{self.id}"
 
-
     def apply_promo_code(self):
-        if self.promo_code and self.promo_code.is_valid():
-            discount = (self.promo_code.discount / 100) * self.total_amount
-            return self.total_amount - discount
+        if self.promo_code:
+            # Преобразуем процент скидки в Decimal перед расчетом
+            discount_rate = Decimal(self.promo_code.discount) / Decimal(100)
+            discount_amount = discount_rate * self.total_amount
+            return self.total_amount - discount_amount
         return self.total_amount
 
     def get_total_amount(self):

@@ -13,7 +13,7 @@ from apps.orders.models import (
     Topping,
     Restaurant,
     Report,
-    TelegramBotToken
+    TelegramBotToken, PromoCode
 
 )  # Ingredient)
 
@@ -116,12 +116,13 @@ class OrderSerializer(serializers.ModelSerializer):
     order_source = serializers.ChoiceField(choices=[('web', 'web'), ('mobile', 'mobile')], default='web')
     change = serializers.IntegerField(default=0)
     is_pickup = serializers.BooleanField(default=False)
+    promo_code = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Order
         fields = [
             'id', 'delivery', 'order_time', 'total_amount', 'is_pickup',
-            'order_status', 'products', 'payment_method', 'change', 'restaurant_id', 'order_source', 'comment'
+            'order_status', 'products', 'payment_method', 'change', 'restaurant_id', 'order_source', 'comment', 'promo_code'
             # 'sets',
         ]
         read_only_fields = ['total_amount', 'order_time', 'order_status']
@@ -129,6 +130,8 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         print(validated_data)
         products_data = validated_data.pop('products', [])
+        promo_code_data = validated_data.pop('promo_code', None)
+
         sets_data = validated_data.pop('sets', [])
         if validated_data.get('delivery'):
             delivery_data = validated_data.pop('delivery')
@@ -150,12 +153,20 @@ class OrderSerializer(serializers.ModelSerializer):
                 delivery_fee=delivery_fee
             )
 
+
             order = Order.objects.create(
                 delivery=delivery,
                 # user=user,
                 restaurant=nearest_restaurant,
                 **validated_data
             )
+            if promo_code_data:
+                promo_code_instance = PromoCode.objects.filter(code=promo_code_data).first()
+                if not promo_code_instance or not promo_code_instance.is_valid():
+                    raise serializers.ValidationError({"promo_code": "Промокод недействителен или его срок истек."})
+                validated_data['promo_code'] = promo_code_instance
+            else:
+                validated_data['promo_code'] = None
 
             for product_data in products_data:
                 topping_ids = product_data.pop('topping_ids', [])
