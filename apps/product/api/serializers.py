@@ -136,19 +136,30 @@ class ComboProductSerializer(serializers.ModelSerializer):
 
 class CategoryProductSerializer(serializers.ModelSerializer):
     products = ProductSerializer(many=True, read_only=True)
+    children = serializers.SerializerMethodField()
 
     # sets = SetSerializer(many=True, read_only=True)
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'slug', 'image', 'products', ]  # 'sets']
+        fields = ['id', 'name', 'description', 'slug', 'image', 'products', 'children']  # 'sets']
+    def get_children(self, obj):
+        if obj.children.exists():
+            return CategoryProductSerializer(obj.children.all(), many=True, context=self.context).data
+        return []
 
 
 class CategoryOnlySerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'slug', 'image', ]
+        fields = ['id', 'name', 'description', 'slug', 'image', 'children']
 
+    def get_children(self, obj):
+        if obj.children.exists():
+            return CategoryOnlySerializer(obj.children.all(), many=True).data
+        return []
 
 class ProductSizeWithBonusSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name')

@@ -59,7 +59,7 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategoryProductSerializer
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.prefetch_related('products', 'sets').all()
+        categories = Category.objects.prefetch_related('products').filter(parent=None)
         serializer = CategoryProductSerializer(categories, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -68,7 +68,7 @@ class CategoryOnlyListView(generics.ListAPIView):
     serializer_class = CategoryOnlySerializer
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent=None)
         serializer = CategoryOnlySerializer(categories, many=True, context={'request': request})
         return Response(serializer.data)
 
