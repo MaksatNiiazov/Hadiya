@@ -23,6 +23,7 @@ PROJECT_APPS = [
     "unfold.contrib.import_export",
     "unfold.contrib.guardian",
     "unfold.contrib.simple_history",
+    "import_export",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
